@@ -4,9 +4,9 @@
   "mention": "",
 
   "max_game_age_days": 45,
-  "min_ccu": 150,
-  "spike_multiplier": 2.0,
-  "min_ccu_gain": 100,
+  "min_ccu": 50,
+  "spike_multiplier": 1.8,
+  "min_ccu_gain": 40,
   "lookback_minutes": 90,
   "new_game_alert_ccu": 1500,
 
