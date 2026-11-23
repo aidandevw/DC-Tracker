@@ -445,6 +445,8 @@ def main():
     ap = argparse.ArgumentParser(description="Roblox early-game CCU spike tracker")
     ap.add_argument("--once", action="store_true", help="run one cycle and exit")
     ap.add_argument("--test-webhook", action="store_true", help="send a test Discord message")
+    ap.add_argument("--duration", type=float, default=0,
+                    help="keep looping for this many minutes, then exit (GitHub Actions)")
     args = ap.parse_args()
     cfg = load_config()
 
@@ -463,7 +465,9 @@ def main():
             time.sleep(1)
         return
 
+    started = time.time()
     while True:
+        cycle_start = time.time()
         state = load_state()
         try:
             run_cycle(cfg, state)
@@ -473,7 +477,11 @@ def main():
         save_state(state)
         if args.once:
             break
-        time.sleep(cfg["poll_interval_seconds"])
+        wait = max(5, cfg["poll_interval_seconds"] - (time.time() - cycle_start))
+        if args.duration and (time.time() - started) + wait > args.duration * 60:
+            log("Duration reached, exiting so the next run can take over.")
+            break
+        time.sleep(wait)
 
 
 if __name__ == "__main__":

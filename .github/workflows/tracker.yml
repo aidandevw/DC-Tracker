@@ -2,8 +2,10 @@ name: Roblox Spike Tracker
 
 on:
   schedule:
-    # Every 10 min. PRIVATE repo? change to "*/30 * * * *" to stay inside the free 2,000 min/month.
-    - cron: "*/10 * * * *"
+    # Each run loops for ~55 min (a check every 5 min). The schedule just keeps a
+    # next run queued, so GitHub's late starts don't leave gaps. Needs a PUBLIC repo
+    # (unlimited minutes); this would use ~44,000 min/month on a private one.
+    - cron: "7,27,47 * * * *"
   workflow_dispatch:      # lets you click "Run workflow" manually
     inputs:
       test_webhooks:
@@ -18,7 +20,7 @@ concurrency:
 jobs:
   track:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 70
     steps:
       - uses: actions/checkout@v4
 
@@ -46,7 +48,7 @@ jobs:
           if [ "${{ inputs.test_webhooks }}" = "true" ]; then
             python tracker.py --test-webhook
           else
-            python tracker.py --once
+            python tracker.py --duration 55
           fi
 
       - name: Save tracker memory
