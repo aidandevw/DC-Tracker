@@ -1,0 +1,44 @@
+name: Roblox Spike Tracker
+
+on:
+  schedule:
+    # Every 10 min. PRIVATE repo? change to "*/30 * * * *" to stay inside the free 2,000 min/month.
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}   # lets you click "Run workflow" manually
+
+concurrency:
+  group: roblox-tracker
+  cancel-in-progress: false
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -r requirements.txt
+
+      - name: Restore tracker memory
+        uses: actions/cache/restore@v4
+        with:
+          path: state.json
+          key: tracker-state-${{ github.run_id }}
+          restore-keys: tracker-state-
+
+      - name: Run one tracking cycle
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          TRACKER_QUIET: "1"   # hides game names in public logs
+        run: python tracker.py --once
+
+      - name: Save tracker memory
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: state.json
+          key: tracker-state-${{ github.run_id }}-${{ github.run_attempt }}
