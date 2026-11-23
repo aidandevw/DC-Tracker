@@ -2,18 +2,18 @@
   "_readme": "Keys starting with _ are ignored. Put your webhook here OR in the DISCORD_WEBHOOK_URL env var / GitHub secret.",
   "webhook_url": "",
   "webhook_tiers": [
-    {"name": "low",     "min": 50,   "max": 499,  "url": "", "env": "WEBHOOK_LOW",     "mention": "<@&1574563321888121054>"},
-    {"name": "mid",     "min": 500,  "max": 999,  "url": "", "env": "WEBHOOK_MID",     "mention": "<@&1574563352557002822>"},
-    {"name": "popular", "min": 1000, "max": null, "url": "", "env": "WEBHOOK_POPULAR", "mention": "<@&1574563373952008233>"}
+    {"name": "low",     "min": 50,   "max": 499,  "url": "https://discord.com/api/webhooks/1574522577714675762/xD5oWiTexsKS5w6eMV9UCXDHP7GnmHwf3o_V8be8k-fb6vIBTSJycQHjd-qo4JghIOG_", "env": "WEBHOOK_LOW",     "mention": "<@&1574563321888121054>"},
+    {"name": "mid",     "min": 500,  "max": 999,  "url": "https://discord.com/api/webhooks/1574558399209930854/XSKdQ-t5G-rcuV8YhY-vzoz8ROAngB5qVqa7SM02WStsDKBNcCA-ZAogTKr6ItVI27eL", "env": "WEBHOOK_MID",     "mention": "<@&1574563352557002822>"},
+    {"name": "popular", "min": 1000, "max": null, "url": "https://discord.com/api/webhooks/1574558440888471632/dNrVEp-A7OpwM3UeThDVYs8eRqQSPdDYKry45uVvVnBuBYqoDDZ0GaC-8tsz6cPMQPVX", "env": "WEBHOOK_POPULAR", "mention": "<@&1574563373952008233>"}
   ],
   "mention": "@here",
 
-  "max_game_age_days": 45,
+  "max_game_age_days": 30,
   "min_ccu": 50,
   "spike_multiplier": 1.8,
   "min_ccu_gain": 40,
   "lookback_minutes": 90,
-  "new_game_alert_ccu": 1500,
+  "new_game_alert_ccu": 1000,
 
   "alert_cooldown_hours": 6,
   "escalation_multiplier": 2.0,
