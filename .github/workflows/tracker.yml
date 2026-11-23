@@ -4,7 +4,12 @@ on:
   schedule:
     # Every 10 min. PRIVATE repo? change to "*/30 * * * *" to stay inside the free 2,000 min/month.
     - cron: "*/10 * * * *"
-  workflow_dispatch: {}   # lets you click "Run workflow" manually
+  workflow_dispatch:      # lets you click "Run workflow" manually
+    inputs:
+      test_webhooks:
+        description: "Only send a test message to every webhook"
+        type: boolean
+        default: false
 
 concurrency:
   group: roblox-tracker
@@ -33,8 +38,16 @@ jobs:
       - name: Run one tracking cycle
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          WEBHOOK_LOW: ${{ secrets.WEBHOOK_LOW }}
+          WEBHOOK_MID: ${{ secrets.WEBHOOK_MID }}
+          WEBHOOK_POPULAR: ${{ secrets.WEBHOOK_POPULAR }}
           TRACKER_QUIET: "1"   # hides game names in public logs
-        run: python tracker.py --once
+        run: |
+          if [ "${{ inputs.test_webhooks }}" = "true" ]; then
+            python tracker.py --test-webhook
+          else
+            python tracker.py --once
+          fi
 
       - name: Save tracker memory
         if: always()

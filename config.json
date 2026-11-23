@@ -1,6 +1,11 @@
 {
   "_readme": "Keys starting with _ are ignored. Put your webhook here OR in the DISCORD_WEBHOOK_URL env var / GitHub secret.",
   "webhook_url": "",
+  "webhook_tiers": [
+    {"name": "low",     "min": 50,   "max": 499,  "url": "", "env": "WEBHOOK_LOW",     "mention": "<@&1574563321888121054>"},
+    {"name": "mid",     "min": 500,  "max": 999,  "url": "", "env": "WEBHOOK_MID",     "mention": "<@&1574563352557002822>"},
+    {"name": "popular", "min": 1000, "max": null, "url": "", "env": "WEBHOOK_POPULAR", "mention": "<@&1574563373952008233>"}
+  ],
   "mention": "@here",
 
   "max_game_age_days": 45,

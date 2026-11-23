@@ -36,7 +36,12 @@ VOTES_URL = "https://games.roblox.com/v1/games/votes"
 ICONS_URL = "https://thumbnails.roblox.com/v1/games/icons"
 
 DEFAULTS = {
-    "webhook_url": "",
+    "webhook_url": "",                # fallback if no tier matches / no tier URL set
+    "webhook_tiers": [                # route alerts by CCU (url can also come from env var)
+        {"name": "low", "min": 50, "max": 499, "url": "", "env": "WEBHOOK_LOW"},
+        {"name": "mid", "min": 500, "max": 999, "url": "", "env": "WEBHOOK_MID"},
+        {"name": "popular", "min": 1000, "max": None, "url": "", "env": "WEBHOOK_POPULAR"},
+    ],
     "mention": "",                    # e.g. "<@&ROLE_ID>" or "@here" to ping
     "max_game_age_days": 45,          # only games created within this many days
     "min_ccu": 150,                   # ignore spikes below this CCU
@@ -85,7 +90,20 @@ def load_config():
     env_hook = os.environ.get("DISCORD_WEBHOOK_URL", "").strip()
     if env_hook:
         cfg["webhook_url"] = env_hook
+    for tier in cfg.get("webhook_tiers") or []:
+        env_val = os.environ.get(tier.get("env") or "", "").strip()
+        if env_val:
+            tier["url"] = env_val
     return cfg
+
+
+def webhook_for(cfg, ccu):
+    """Pick the webhook whose CCU range contains ccu; fall back to webhook_url."""
+    for tier in cfg.get("webhook_tiers") or []:
+        lo, hi = tier.get("min") or 0, tier.get("max")
+        if ccu >= lo and (hi is None or ccu <= hi) and tier.get("url"):
+            return tier["url"], tier.get("name", "?"), tier.get("mention") or cfg.get("mention", "")
+    return cfg.get("webhook_url", ""), "default", cfg.get("mention", "")
 
 
 def load_state():
@@ -309,14 +327,14 @@ def build_embed(uid, info, alert, votes, icon):
     return embed
 
 
-def send_webhook(cfg, embeds, content=None):
-    url = cfg["webhook_url"]
+def send_webhook(url, embeds, content=None):
     if not url:
         log("No webhook_url set — alert printed only.")
         for e in embeds:
             print(json.dumps(e, indent=2))
         return False
-    payload = {"username": "Roblox Spike Tracker", "embeds": embeds}
+    payload = {"username": "Roblox Spike Tracker", "embeds": embeds,
+               "allowed_mentions": {"parse": ["roles", "users", "everyone"]}}
     if content:
         payload["content"] = content
     for _ in range(4):
@@ -412,7 +430,9 @@ def run_cycle(cfg, state):
     votes, icons = fetch_votes(alert_ids), fetch_icons(alert_ids)
     for uid, info, alert in pending:
         embed = build_embed(uid, info, alert, votes, icons.get(uid))
-        ok = send_webhook(cfg, [embed], cfg["mention"] or None)
+        url, tier_name, mention = webhook_for(cfg, alert["cur"])
+        embed["footer"]["text"] += f" • {tier_name} tier"
+        ok = send_webhook(url, [embed], mention or None)
         g = games[str(uid)]
         g["last_alert_ts"], g["last_alert_ccu"] = int(now), alert["cur"]
         ccu_txt = "" if QUIET else f" @ {alert['cur']} CCU"
@@ -429,10 +449,18 @@ def main():
     cfg = load_config()
 
     if args.test_webhook:
-        ok = send_webhook(cfg, [{"title": "✅ Tracker webhook works",
-                                 "description": "You'll get spike alerts here.",
-                                 "color": 0x2ECC71}])
-        log("Test sent!" if ok else "Test failed — check webhook_url.")
+        targets = [(t.get("name"), t.get("url"), t.get("mention") or cfg.get("mention", ""))
+                   for t in cfg.get("webhook_tiers") or [] if t.get("url")]
+        if cfg.get("webhook_url"):
+            targets.append(("default", cfg["webhook_url"], cfg.get("mention", "")))
+        if not targets:
+            log("No webhooks configured.")
+        for name, url, mention in targets:
+            ok = send_webhook(url, [{"title": f"✅ Tracker webhook works ({name} tier)",
+                                     "description": "You'll get spike alerts here.",
+                                     "color": 0x2ECC71}], mention or None)
+            log(f"{name}: {'test sent!' if ok else 'test FAILED — check the URL'}")
+            time.sleep(1)
         return
 
     while True:
