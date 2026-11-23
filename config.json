@@ -1,7 +1,7 @@
 {
   "_readme": "Keys starting with _ are ignored. Put your webhook here OR in the DISCORD_WEBHOOK_URL env var / GitHub secret.",
   "webhook_url": "",
-  "mention": "",
+  "mention": "@here",
 
   "max_game_age_days": 45,
   "min_ccu": 50,
