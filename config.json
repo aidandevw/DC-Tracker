@@ -1,0 +1,30 @@
+{
+  "_readme": "Keys starting with _ are ignored. Put your webhook here OR in the DISCORD_WEBHOOK_URL env var / GitHub secret.",
+  "webhook_url": "",
+  "mention": "",
+
+  "max_game_age_days": 45,
+  "min_ccu": 150,
+  "spike_multiplier": 2.0,
+  "min_ccu_gain": 100,
+  "lookback_minutes": 90,
+  "new_game_alert_ccu": 1500,
+
+  "alert_cooldown_hours": 6,
+  "escalation_multiplier": 2.0,
+  "max_alerts_per_cycle": 10,
+  "poll_interval_seconds": 300,
+
+  "explore_pages": 6,
+  "search_keywords": ["+1", "simulator", "tycoon", "evolve", "clicker", "obby", "hatch", "boxing", "brainrot", "incremental"],
+  "search_pages": 1,
+  "extra_universe_ids": [],
+
+  "ignore_universe_ids": [],
+  "ignore_name_keywords": [],
+
+  "watch_min_ccu": 15,
+  "watch_grace_hours": 24,
+  "max_watchlist": 2500,
+  "history_keep_hours": 48
+}
